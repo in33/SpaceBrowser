@@ -224,8 +224,8 @@ function genFailMsg(e) {
   const isCredit = low.includes('credit') || low.includes('额度') || low.includes('配额') || low.includes('quota') || low.includes('余额');
   const isAuth = e?.status === 401 || e?.status === 403 || low.includes('auth') || low.includes('key') || low.includes('鉴权') || low.includes('unauthorized');
   const base = '生成失败：' + (e.message || e);
-  if (isCredit) return base + '。演示额度可能已用尽，可点击上方「免登录立即体验」直接漫游精选展厅';
-  if (isAuth) return base + '。API Key 无效或已失效，可在「⚙️ 设置」中更换；或点击「免登录立即体验」直接漫游';
+  if (isCredit) return base + '。演示额度可能已用尽，可点击上方「立即体验」直接漫游精选展厅';
+  if (isAuth) return base + '。API Key 无效或已失效，可在「⚙️ 设置」中更换；或点击「立即体验」直接漫游';
   return base;
 }
 
