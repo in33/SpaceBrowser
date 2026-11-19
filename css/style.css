@@ -102,7 +102,9 @@ input,textarea,select{font-family:inherit}
 .create__brand-text{display:flex;flex-direction:column;line-height:1.1}
 .create__brand-text strong{font-size:18px;font-weight:800;letter-spacing:1px;
   background:linear-gradient(90deg,var(--primary2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
-.create__brand-text em{font-size:12px;font-style:normal;color:var(--text3);letter-spacing:2px;font-family:"Cascadia Code",Consolas,monospace}
+.create__brand-text em{font-size:16px;font-style:normal;font-weight:700;letter-spacing:2px;font-family:"Cascadia Code",Consolas,monospace;
+  background:linear-gradient(90deg,var(--accent),var(--primary2));-webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-top:3px}
 .create__powered{font-size:11px;font-weight:600;color:var(--primary2);padding:4px 10px;border-radius:20px;
   background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.22);white-space:nowrap;margin-left:6px}
 .create__hero h1{font-size:34px;font-weight:800;line-height:1.25;letter-spacing:.5px}
