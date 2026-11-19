@@ -59,6 +59,7 @@ export const EXPLORE_SCENES = [
     url: 'assets/bonsai.ksplat',
     format: 'KSplat',
     upAxis: 'Y',
+    cameraUp: [0.01933, -0.75830, -0.65161],
     cameraPosition: [1.54163, 2.68515, -6.37228],
     cameraLookAt: [0.45622, 1.95338, 1.51278]
   },
@@ -73,6 +74,7 @@ export const EXPLORE_SCENES = [
     url: 'assets/truck.ksplat',
     format: 'KSplat',
     upAxis: 'Y',
+    cameraUp: [0, -1, -0.17],
     cameraPosition: [-5, -1, -1],
     cameraLookAt: [-1.72477, 0.05395, -0.00147]
   }

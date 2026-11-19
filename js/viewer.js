@@ -24,8 +24,8 @@ export class SpaceViewer {
   async load(scene) {
     this._clear();
     const upAxis = scene.upAxis || 'Z';
-    // Aholo 3DGS 约定 Z-up；glTF/USD 为 Y-up。GaussianSplats3D 的 cameraUp 用 Y-up 习惯。
-    const cameraUp = upAxis === 'Z' ? [0, 0, 1] : [0, 1, 0];
+    // 优先使用场景自带 cameraUp（示范 ksplat 的官方参数带负分量，简单 Y/Z-up 会上下颠倒）
+    const cameraUp = scene.cameraUp || (upAxis === 'Z' ? [0, 0, 1] : [0, 1, 0]);
 
     const viewerOpts = {
       cameraUp,
