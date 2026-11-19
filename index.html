@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="renderer" content="webkit" />
+  <title>空间浏览器 SpaceBrowser.cn — 用 AI 重建与漫游真实 3D 空间</title>
+  <meta name="description" content="空间浏览器（SpaceBrowser.cn）：基于群核 Aholo 空间智能 API，用一句话或一组照片生成可漫游的高保真 3D 空间，支持空间理解、数字孪生与沉浸式浏览。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B0%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- 粒子背景 -->
+  <canvas id="particles" class="particles"></canvas>
+  <!-- ES Module importmap: 把 bare import 'three' 映射到 CDN -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "@mkkellogg/gaussian-splats-3d": "https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.7/build/gaussian-splats-3d.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- 启动加载层 -->
+  <div id="boot" class="boot">
+    <div class="boot__logo">🛰️</div>
+    <div class="boot__title">空间浏览器</div>
+    <div class="boot__sub">SpaceBrowser.cn · Play in 3D, Create with Aholo</div>
+    <div class="boot__powered">基于群核科技 Aholo 空间智能 API 驱动</div>
+    <div class="boot__bar"><span id="bootBar"></span></div>
+    <div id="bootMsg" class="boot__msg">正在初始化空间引擎…</div>
+  </div>
+
+  <!-- 顶部导航 -->
+  <header class="topbar" id="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__logo">🛰️</span>
+      <div class="topbar__name">
+        <strong>空间浏览器</strong>
+        <small>SpaceBrowser.cn</small>
+      </div>
+    </div>
+    <nav class="topbar__nav">
+      <button class="tab active" data-view="create">✨ 创建空间</button>
+      <button class="tab" data-view="library">🗂️ 我的空间</button>
+      <button class="tab" data-view="explore">🌐 精选展厅</button>
+      <button class="tab" data-view="about">💡 关于项目</button>
+    </nav>
+    <div class="topbar__right">
+      <span class="topbar__badge" title="基于群核科技 Aholo 空间智能 API">⚡ 群核 Aholo 驱动</span>
+      <button id="btnSettings" class="iconbtn" title="API 设置">⚙️</button>
+    </div>
+  </header>
+
+  <!-- 主区域 -->
+  <main id="main" class="main">
+
+    <!-- 视图：创建空间 -->
+    <section id="view-create" class="view active">
+      <div class="create">
+        <div class="create__hero">
+          <div class="create__brand">
+            <span class="create__brand-logo">🛰️</span>
+            <div class="create__brand-text">
+              <strong>空间浏览器</strong>
+              <em>SpaceBrowser.cn</em>
+            </div>
+            <span class="create__powered">⚡ Powered by 群核 Aholo</span>
+          </div>
+          <h1>把想象与现实，<span>变成可漫游的 3D 空间</span></h1>
+          <p>输入一句话、上传一张图，或用 20+ 张照片重建真实场景。<br/>基于群核 Aholo 3D 高斯泼溅（3DGS）与 Lux3D 生成模型，浏览器内即时沉浸漫游。</p>
+          <div class="stats">
+            <div class="stat"><b>3DGS</b><span>群核高斯泼溅渲染</span></div>
+            <div class="stat"><b>AI</b><span>Aholo 文/图生空间</span></div>
+            <div class="stat"><b>20+</b><span>照片重建</span></div>
+            <div class="stat"><b>0</b><span>安装·浏览器即用</span></div>
+          </div>
+        </div>
+
+        <div class="create__modes">
+          <button class="mode active" data-mode="gen">
+            <span class="mode__icon">🤖</span>
+            <span class="mode__label">AI 生成空间</span>
+            <small>文字 / 单图 → 3D 空间</small>
+          </button>
+          <button class="mode" data-mode="recon">
+            <span class="mode__icon">📷</span>
+            <span class="mode__label">照片重建空间</span>
+            <small>20+ 张照片 → 高保真 3DGS</small>
+          </button>
+        </div>
+
+        <!-- AI 生成面板 -->
+        <div id="panel-gen" class="panel active">
+          <div class="panel__row">
+            <label class="field">
+              <span class="field__label">空间描述 Prompt</span>
+              <textarea id="genPrompt" rows="3" placeholder="例如：现代简约风格客厅，大面积落地窗，木质地板，米色沙发，绿植点缀，自然光充足"></textarea>
+            </label>
+          </div>
+          <div class="panel__row">
+            <label class="field field--half">
+              <span class="field__label">参考图片（可选，室内效果更佳）</span>
+              <div id="genDrop" class="drop">
+                <input id="genFile" type="file" accept=".jpg,.jpeg,.png,.webp" hidden />
+                <div class="drop__inner">
+                  <span class="drop__icon">🖼️</span>
+                  <span class="drop__text">点击或拖入一张图片</span>
+                  <small>jpg / png / webp，≤50MB</small>
+                </div>
+              </div>
+            </label>
+            <label class="field field--half">
+              <span class="field__label">空间名称</span>
+              <input id="genName" type="text" placeholder="我的 AI 空间" />
+              <span class="field__hint">提示：室内场景生成质量更稳定</span>
+            </label>
+          </div>
+          <div class="panel__presets">
+            <span class="field__label">灵感预设</span>
+            <div class="chips" id="genPresets"></div>
+          </div>
+          <div class="panel__actions">
+            <button id="btnGen" class="btn btn--primary btn--lg">🚀 生成 3D 空间</button>
+            <span id="genCost" class="cost">约 1 次生成额度</span>
+          </div>
+        </div>
+
+        <!-- 照片重建面板 -->
+        <div id="panel-recon" class="panel">
+          <div class="panel__row">
+            <label class="field">
+              <span class="field__label">上传照片（至少 20 张，全角度拍摄）</span>
+              <div id="reconDrop" class="drop drop--multi">
+                <input id="reconFiles" type="file" accept=".jpg,.jpeg,.png,.webp" multiple hidden />
+                <div class="drop__inner">
+                  <span class="drop__icon">📸</span>
+                  <span class="drop__text">点击或拖入多张照片</span>
+                  <small id="reconCount">已选 0 张（至少 20 张）</small>
+                </div>
+              </div>
+              <div id="reconThumbs" class="thumbs"></div>
+            </label>
+          </div>
+          <div class="panel__row">
+            <label class="field field--third">
+              <span class="field__label">场景类型</span>
+              <select id="reconScene">
+                <option value="space">空间（室内/室外场景）</option>
+                <option value="model">物体（单个物体）</option>
+              </select>
+            </label>
+            <label class="field field--third">
+              <span class="field__label">重建质量</span>
+              <select id="reconQuality">
+                <option value="low">快速（low）</option>
+                <option value="normal" selected>标准（normal）</option>
+                <option value="high">高保真（high）</option>
+              </select>
+            </label>
+            <label class="field field--third">
+              <span class="field__label">空间名称</span>
+              <input id="reconName" type="text" placeholder="我的重建空间" />
+            </label>
+          </div>
+          <div class="panel__actions">
+            <button id="btnRecon" class="btn btn--primary btn--lg" disabled>🏗️ 开始重建</button>
+            <span class="cost">照片越多、覆盖越全，重建越精细</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图：我的空间库 -->
+    <section id="view-library" class="view">
+      <div class="library">
+        <div class="library__head">
+          <div>
+            <h2>🗂️ 我的空间</h2>
+            <p class="library__sub">所有空间由群核 Aholo 3DGS 生成/重建</p>
+          </div>
+          <div class="library__filter">
+            <select id="libFilter">
+              <option value="">全部状态</option>
+              <option value="RUNNING">进行中</option>
+              <option value="SUCCEEDED">已完成</option>
+              <option value="FAILED">失败</option>
+            </select>
+            <button id="btnRefresh" class="btn btn--ghost">🔄 刷新</button>
+          </div>
+        </div>
+        <div id="libGrid" class="grid"></div>
+        <div id="libEmpty" class="empty">
+          <div class="empty__icon">🌌</div>
+          <p>还没有空间，去「创建空间」生成你的第一个 3D 世界吧！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图：精选展厅 -->
+    <section id="view-explore" class="view">
+      <div class="explore">
+        <div class="explore__head">
+          <div>
+            <h2>🌐 精选展厅</h2>
+            <p>一键体验 3DGS 漫游，或从灵感场景生成你的专属空间。</p>
+          </div>
+          <span class="explore__badge">⚡ 群核 Aholo 3DGS 渲染</span>
+        </div>
+        <div class="explore__section">
+          <h3 class="explore__title">🎬 即时漫游（3DGS 示范场景）</h3>
+          <div id="exploreGrid" class="grid"></div>
+        </div>
+        <div class="explore__section">
+          <h3 class="explore__title">✨ 灵感场景（点击一键生成）</h3>
+          <div id="sceneIdeas" class="ideas"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视图：关于 -->
+    <section id="view-about" class="view">
+      <div class="about">
+        <div class="about__hero">
+          <h2>💡 关于空间浏览器</h2>
+          <div class="about__powered-badge">⚡ 基于 群核科技 Aholo 空间智能 API 构建</div>
+        </div>
+        <div class="about__grid">
+          <article class="card card--tech">
+            <h3>🔧 群核技术栈</h3>
+            <p>深度使用 Aholo 开放能力：<strong>World 生成</strong>（文/图生空间）、<strong>World 重建</strong>（多图 3DGS）、<strong>Asset 上传</strong>（OUS 直传）、<strong>空间理解</strong>（墙/门/窗/Bbox 识别），并在浏览器内用 Three.js + GaussianSplats3D 实时渲染 SPZ/PLY。</p>
+          </article>
+          <article class="card">
+            <h3>🎯 项目定位</h3>
+            <p>空间浏览器（SpaceBrowser.cn）是一款面向大众的 <strong>3D 空间创作与漫游工具</strong>。让任何人都能用一句话或一组照片，把真实或想象的空间变成可在浏览器中自由漫游的沉浸式 3D 世界。</p>
+          </article>
+          <article class="card">
+            <h3>✨ 创新亮点</h3>
+            <p>① 浏览器原生 3DGS 漫游，零安装；② AI 生成 + 实景重建双模式统一体验；③ 空间理解结果可视化叠加；④ 沉浸式第一人称 + 轨道双视角；⑤ 任务全流程可视化进度。</p>
+          </article>
+          <article class="card">
+            <h3>🚀 应用价值</h3>
+            <p>数字孪生、文旅/文博数字化、房产看房、室内设计预演、影视虚拟制片、3D 创作素材库。让物理世界与数字世界在浏览器中重叠。</p>
+          </article>
+        </div>
+        <div class="about__flow">
+          <h3>🔄 工作流程</h3>
+          <div class="flow">
+            <div class="flow__step"><div class="flow__icon">✍️</div><div class="flow__label">输入</div><small>文字/图片/多图</small></div>
+            <div class="flow__arrow">→</div>
+            <div class="flow__step"><div class="flow__icon">☁️</div><div class="flow__label">Aholo API</div><small>上传+生成/重建</small></div>
+            <div class="flow__arrow">→</div>
+            <div class="flow__step"><div class="flow__icon">⏳</div><div class="flow__label">异步任务</div><small>3DGS 重建</small></div>
+            <div class="flow__arrow">→</div>
+            <div class="flow__step"><div class="flow__icon">🌐</div><div class="flow__label">浏览器漫游</div><small>PLY/SPZ 渲染</small></div>
+            <div class="flow__arrow">→</div>
+            <div class="flow__step"><div class="flow__icon">🧠</div><div class="flow__label">空间理解</div><small>墙/门/窗识别</small></div>
+          </div>
+        </div>
+        <div class="about__tech">
+          <h3>🧱 技术架构</h3>
+          <pre>用户输入（文字/图片/多图）
+        │
+        ▼
+Aholo Open API（api.aholo.cn）
+  ├─ Asset  上传凭证 + OUS 直传
+  ├─ World  生成 / 重建（异步 3DGS 任务）
+  └─ SpatialUnderstanding  空间语义理解
+        │
+        ▼
+浏览器渲染（Three.js + GaussianSplats3D）
+  ├─ 加载 SPZ / PLY 高斯泼溅
+  ├─ 第一人称漫游 / 轨道俯瞰
+  └─ 空间理解结果叠加可视化</pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer__brand">
+        <span class="footer__logo">🛰️</span>
+        <span>空间浏览器 <em>SpaceBrowser.cn</em></span>
+      </div>
+      <div class="footer__tag">Play in 3D, Create with Aholo</div>
+      <div class="footer__powered">
+        <span class="footer__powered-label">⚡ Powered by</span>
+        <span class="footer__powered-name">群核科技 Aholo 空间智能平台</span>
+      </div>
+      <div class="footer__meta">3D 高斯泼溅（3DGS）· World 生成/重建 · Asset 上传 · 空间理解 · 纯 HTML+JS+CSS</div>
+      <div class="footer__links">
+        <a href="https://www.aholo.cn" target="_blank" rel="noopener">aholo.cn</a>
+        <span>·</span>
+        <a href="https://labs.aholo.cn/api-docs/intro" target="_blank" rel="noopener">API 文档</a>
+        <span>·</span>
+        <a href="https://www.aholo.cn/hackathon" target="_blank" rel="noopener">3D AI 黑客松</a>
+      </div>
+    </footer>
+  </main>
+
+  <!-- 3D 漫游查看器（全屏覆盖层） -->
+  <div id="viewer" class="viewer hidden">
+    <div id="viewerCanvas" class="viewer__canvas"></div>
+    <div class="viewer__hud">
+      <div class="viewer__title">
+        <strong id="viewerName">空间</strong>
+        <small id="viewerMeta"></small>
+      </div>
+      <div class="viewer__controls">
+        <button id="btnOrbit" class="vbtn active" title="轨道视角">🛰️ 轨道</button>
+        <button id="btnFps" class="vbtn" title="第一人称漫游">🚶 漫游</button>
+        <button id="btnReset" class="vbtn" title="重置视角">🎯 重置</button>
+        <button id="btnUnderstand" class="vbtn" title="空间理解">🧠 空间理解</button>
+        <button id="btnPano" class="vbtn" title="全景图">🖼️ 全景</button>
+        <button id="btnFullscreen" class="vbtn" title="全屏">⛶ 全屏</button>
+      </div>
+      <button id="btnCloseViewer" class="viewer__close">✕</button>
+    </div>
+    <div id="viewerLoading" class="viewer__loading">
+      <div class="spin"></div>
+      <div id="viewerLoadMsg">正在加载空间…</div>
+    </div>
+    <div id="viewerHelp" class="viewer__help">
+      <div class="viewer__help-title">操作指南</div>
+      <div class="viewer__help-row"><b>轨道模式：</b>左键拖动旋转 · 右键拖动平移 · 滚轮缩放</div>
+      <div class="viewer__help-row"><b>漫游模式：</b>WASD 移动 · 鼠标拖动转向 · Shift 加速</div>
+      <div class="viewer__help-row"><b>快捷键：</b>P 点云模式 · =/- 调整大小 · O 正交视图</div>
+    </div>
+  </div>
+
+  <!-- 任务进度浮窗 -->
+  <div id="taskToast" class="toast hidden">
+    <div class="toast__head">
+      <span id="toastTitle">任务进行中</span>
+      <button id="toastClose" class="toast__close">✕</button>
+    </div>
+    <div class="toast__body">
+      <div class="toast__progress"><span id="toastBar"></span></div>
+      <div id="toastStatus" class="toast__status">排队中…</div>
+      <div id="toastDetail" class="toast__detail"></div>
+    </div>
+    <div class="toast__actions">
+      <button id="toastView" class="btn btn--primary btn--sm" disabled>进入漫游</button>
+      <button id="toastCancel" class="btn btn--ghost btn--sm">隐藏</button>
+    </div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal__box">
+      <div class="modal__head">
+        <h3>⚙️ API 设置</h3>
+        <button id="settingsClose" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <label class="field">
+          <span class="field__label">Aholo API Key</span>
+          <input id="settingsKey" type="password" placeholder="粘贴你的 Aholo API Key" />
+          <small class="field__hint">密钥仅保存在本地浏览器 localStorage，不会上传。已在演示中预置体验 Key。</small>
+        </label>
+        <label class="field">
+          <span class="field__label">API 网关</span>
+          <input id="settingsBase" type="text" value="https://api.aholo.cn" />
+        </label>
+      </div>
+      <div class="modal__foot">
+        <button id="settingsSave" class="btn btn--primary">保存</button>
+        <button id="settingsTest" class="btn btn--ghost">测试连接</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全景图查看 -->
+  <div id="panoModal" class="modal hidden">
+    <div class="modal__box modal__box--wide">
+      <div class="modal__head">
+        <h3>🖼️ 全景图</h3>
+        <button id="panoClose" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body modal__body--center">
+        <img id="panoImg" alt="全景图" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 空间理解结果 -->
+  <div id="understandModal" class="modal hidden">
+    <div class="modal__box modal__box--wide">
+      <div class="modal__head">
+        <h3>🧠 空间理解结果</h3>
+        <button id="understandClose" class="modal__close">✕</button>
+      </div>
+      <div class="modal__body">
+        <div id="understandContent" class="understand"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用提示 -->
+  <div id="notify" class="notify hidden"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
