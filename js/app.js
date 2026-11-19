@@ -49,7 +49,13 @@ async function boot() {
     if (p >= 100) {
       clearInterval(t);
       setTimeout(() => {
-        $('#boot').classList.add('hide');
+        const bootEl = $('#boot');
+        // 强制 reflow，确保 .hide 的 opacity/visibility 过渡被浏览器应用
+        void bootEl.offsetWidth;
+        bootEl.classList.add('hide');
+        // 兜底：部分浏览器环境下 class 切换的 opacity 过渡可能不触发，
+        // 过渡时长后强制 display:none，确保启动层彻底隐藏不遮挡交互
+        setTimeout(() => { bootEl.style.display = 'none'; }, 650);
         // 自动加载我的空间
         refreshLibrary();
       }, 350);
@@ -81,6 +87,12 @@ function bindEvents() {
 
   // 生成按钮
   $('#btnGen').onclick = onGenerate;
+
+  // 免登录即时体验：进入精选展厅并自动打开首个示范场景
+  $('#btnDemo').onclick = () => {
+    switchView('explore');
+    if (EXPLORE_SCENES[0]) openViewerFromScene(EXPLORE_SCENES[0]);
+  };
 
   // 重建：多图选择
   const reconDrop = $('#reconDrop'), reconInput = $('#reconFiles');
@@ -198,11 +210,23 @@ async function onGenerate() {
     notify('任务已创建，正在生成 3D 空间…', 'ok');
     startPoll(worldId, { type: 'gen', name, prompt });
   } catch (e) {
-    notify('生成失败：' + e.message, 'err');
+    notify(genFailMsg(e), 'err');
   } finally {
     btn.disabled = false;
     btn.textContent = '🚀 生成 3D 空间';
   }
+}
+
+// API 调用失败时的友好提示：额度/鉴权类错误引导至免登录精选展厅
+function genFailMsg(e) {
+  const raw = String(e?.raw ? JSON.stringify(e.raw) : '') + ' ' + (e?.message || '') + ' ' + (e?.code || '');
+  const low = raw.toLowerCase();
+  const isCredit = low.includes('credit') || low.includes('额度') || low.includes('配额') || low.includes('quota') || low.includes('余额');
+  const isAuth = e?.status === 401 || e?.status === 403 || low.includes('auth') || low.includes('key') || low.includes('鉴权') || low.includes('unauthorized');
+  const base = '生成失败：' + (e.message || e);
+  if (isCredit) return base + '。演示额度可能已用尽，可点击上方「免登录立即体验」直接漫游精选展厅';
+  if (isAuth) return base + '。API Key 无效或已失效，可在「⚙️ 设置」中更换；或点击「免登录立即体验」直接漫游';
+  return base;
 }
 
 // ============ 重建：多图 ============
@@ -259,7 +283,7 @@ async function onReconstruct() {
     notify('重建任务已创建，正在生成高保真 3DGS…', 'ok');
     startPoll(op.worldId, { type: 'recon', name, scene });
   } catch (e) {
-    notify('重建失败：' + e.message, 'err');
+    notify(genFailMsg(e), 'err');
   } finally {
     btn.disabled = false;
     btn.textContent = '🏗️ 开始重建';
