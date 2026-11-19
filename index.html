@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="renderer" content="webkit" />
   <title>空间浏览器 SpaceBrowser.cn — 用 AI 重建与漫游真实 3D 空间</title>
-  <meta name="description" content="空间浏览器（SpaceBrowser.cn）：基于群核 Aholo 空间智能 API，用一句话或一组照片生成可漫游的高保真 3D 空间，支持空间理解、数字孪生与沉浸式浏览。" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B0%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+  <meta name="description"
+    content="空间浏览器（SpaceBrowser.cn）：基于群核 Aholo 空间智能 API，用一句话或一组照片生成可漫游的高保真 3D 空间，支持空间理解、数字孪生与沉浸式浏览。" />
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B0%EF%B8%8F%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="css/style.css" />
   <!-- 粒子背景 -->
   <canvas id="particles" class="particles"></canvas>
@@ -21,12 +24,14 @@
   }
   </script>
 </head>
+
 <body>
   <!-- 启动加载层 -->
   <div id="boot" class="boot">
     <div class="boot__logo">🛰️</div>
     <div class="boot__title">空间浏览器</div>
-    <div class="boot__sub">SpaceBrowser.cn · Play in 3D, Create with Aholo</div>
+    <div class="boot__title2">SpaceBrowser.cn</div>
+    <div class="boot__sub"> Play in 3D, Create with Aholo</div>
     <div class="boot__powered">基于群核科技 Aholo 空间智能 API 驱动</div>
     <div class="boot__bar"><span id="bootBar"></span></div>
     <div id="bootMsg" class="boot__msg">正在初始化空间引擎…</div>
@@ -69,7 +74,7 @@
             <span class="create__powered">⚡ Powered by 群核 Aholo</span>
           </div>
           <h1>把想象与现实，<span>变成可漫游的 3D 空间</span></h1>
-          <p>输入一句话、上传一张图，或用 20+ 张照片重建真实场景。<br/>基于群核 Aholo 3D 高斯泼溅（3DGS）与 Lux3D 生成模型，浏览器内即时沉浸漫游。</p>
+          <p>输入一句话、上传一张图，或用 20+ 张照片重建真实场景。<br />基于群核 Aholo 3D 高斯泼溅（3DGS）与 Lux3D 生成模型，浏览器内即时沉浸漫游。</p>
           <div class="hero__demo" id="heroDemo">
             <div class="hero__demo-text">
               <strong>🎉 免登录立即体验</strong>
@@ -236,11 +241,14 @@
         <div class="about__grid">
           <article class="card card--tech">
             <h3>🔧 群核技术栈</h3>
-            <p>深度使用 Aholo 开放能力：<strong>World 生成</strong>（文/图生空间）、<strong>World 重建</strong>（多图 3DGS）、<strong>Asset 上传</strong>（OUS 直传）、<strong>空间理解</strong>（墙/门/窗/Bbox 识别），并在浏览器内用 Three.js + GaussianSplats3D 实时渲染 SPZ/PLY。</p>
+            <p>深度使用 Aholo 开放能力：<strong>World 生成</strong>（文/图生空间）、<strong>World 重建</strong>（多图 3DGS）、<strong>Asset
+                上传</strong>（OUS 直传）、<strong>空间理解</strong>（墙/门/窗/Bbox 识别），并在浏览器内用 Three.js + GaussianSplats3D 实时渲染
+              SPZ/PLY。</p>
           </article>
           <article class="card">
             <h3>🎯 项目定位</h3>
-            <p>空间浏览器（SpaceBrowser.cn）是一款面向大众的 <strong>3D 空间创作与漫游工具</strong>。让任何人都能用一句话或一组照片，把真实或想象的空间变成可在浏览器中自由漫游的沉浸式 3D 世界。</p>
+            <p>空间浏览器（SpaceBrowser.cn）是一款面向大众的 <strong>3D 空间创作与漫游工具</strong>。让任何人都能用一句话或一组照片，把真实或想象的空间变成可在浏览器中自由漫游的沉浸式 3D
+              世界。</p>
           </article>
           <article class="card">
             <h3>✨ 创新亮点</h3>
@@ -254,15 +262,30 @@
         <div class="about__flow">
           <h3>🔄 工作流程</h3>
           <div class="flow">
-            <div class="flow__step"><div class="flow__icon">✍️</div><div class="flow__label">输入</div><small>文字/图片/多图</small></div>
+            <div class="flow__step">
+              <div class="flow__icon">✍️</div>
+              <div class="flow__label">输入</div><small>文字/图片/多图</small>
+            </div>
             <div class="flow__arrow">→</div>
-            <div class="flow__step"><div class="flow__icon">☁️</div><div class="flow__label">Aholo API</div><small>上传+生成/重建</small></div>
+            <div class="flow__step">
+              <div class="flow__icon">☁️</div>
+              <div class="flow__label">Aholo API</div><small>上传+生成/重建</small>
+            </div>
             <div class="flow__arrow">→</div>
-            <div class="flow__step"><div class="flow__icon">⏳</div><div class="flow__label">异步任务</div><small>3DGS 重建</small></div>
+            <div class="flow__step">
+              <div class="flow__icon">⏳</div>
+              <div class="flow__label">异步任务</div><small>3DGS 重建</small>
+            </div>
             <div class="flow__arrow">→</div>
-            <div class="flow__step"><div class="flow__icon">🌐</div><div class="flow__label">浏览器漫游</div><small>PLY/SPZ 渲染</small></div>
+            <div class="flow__step">
+              <div class="flow__icon">🌐</div>
+              <div class="flow__label">浏览器漫游</div><small>PLY/SPZ 渲染</small>
+            </div>
             <div class="flow__arrow">→</div>
-            <div class="flow__step"><div class="flow__icon">🧠</div><div class="flow__label">空间理解</div><small>墙/门/窗识别</small></div>
+            <div class="flow__step">
+              <div class="flow__icon">🧠</div>
+              <div class="flow__label">空间理解</div><small>墙/门/窗识别</small>
+            </div>
           </div>
         </div>
         <div class="about__tech">
@@ -408,4 +431,5 @@ Aholo Open API（api.aholo.cn）
 
   <script type="module" src="js/app.js"></script>
 </body>
+
 </html>

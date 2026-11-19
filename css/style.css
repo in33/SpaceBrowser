@@ -58,7 +58,7 @@ input,textarea,select{font-family:inherit}
 .boot__title{font-size:64px;font-weight:900;margin-top:18px;letter-spacing:6px;
   background:linear-gradient(90deg,var(--primary2),var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;
   text-shadow:0 0 40px rgba(91,140,255,.35);animation:bootGlow 2.4s ease-in-out infinite}
-.boot__sub{color:var(--primary2);font-size:22px;margin-top:10px;letter-spacing:3px;font-weight:700;
+.boot__title2{color:var(--primary2);font-size:32px;margin-top:10px;letter-spacing:3px;font-weight:700;
   text-shadow:0 0 18px rgba(122,162,255,.4)}
 .boot__powered{margin-top:10px;font-size:12px;color:var(--primary2);font-weight:600;letter-spacing:.5px;
   padding:5px 14px;border-radius:20px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.25)}

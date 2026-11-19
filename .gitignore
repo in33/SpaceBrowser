@@ -3,6 +3,11 @@ prompt.md
 context.md
 避坑.md
 提交说明.md
+gen_report.py
+SpaceBrowser项目报告书.pptx
+SpaceBrowser项目报告书.pdf
+*.pptx
+*.pdf
 
 # 依赖
 node_modules/
